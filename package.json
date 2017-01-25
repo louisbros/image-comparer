@@ -1,0 +1,24 @@
+{
+  "name": "image-comparer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build-watch": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "tsfmt -r `glob '{src,test}/**/*.ts'`"
+  },
+  "author": "",
+  "license": "UNLICENCED",
+  "dependencies": {
+    "canvas": "1.x.x",
+    "image-type": "3.x.x",
+    "typescript": "2.x.x"
+  },
+  "devDependencies": {
+    "@types/node": "7.x.x",
+    "cli-glob": "0.x.x",
+    "typescript-formatter": "4.x.x"
+  }
+}
