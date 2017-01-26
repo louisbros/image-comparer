@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
+  "typings": "build/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "build-watch": "tsc --watch",
@@ -10,7 +11,7 @@
     "format": "tsfmt -r `glob '{src,test}/**/*.ts'`"
   },
   "author": "",
-  "license": "UNLICENCED",
+  "license": "MIT",
   "dependencies": {
     "canvas": "1.x.x",
     "image-type": "3.x.x",
