@@ -1,70 +1,42 @@
 import { Comparator, ComparatorPred } from './comparator';
+import { Processor, PixelProcessor } from "./processor";
 import { ImageUtil } from "./image";
+import { Comparison, Comparer } from "./comparer";
 
-type Bounds = {
-    t: number;
-    l: number;
-    b: number;
-    r: number;
-};
+export interface BuilderAPI {
+    withProcessor: (value: PixelProcessor) => BuilderAPI;
+    withComparator: (value: ComparatorPred) => BuilderAPI;
+    compare: (imgBuffA: Buffer, imgBuffB: Buffer) => Promise<Comparison>
+}
 
-type Comparison = {
-    pct: number;
-    bounds: Bounds;
-    buffer: Buffer;
-};
+function create() {
+    let pixelProcessor: PixelProcessor;
+    let comparatorPred: ComparatorPred;
 
-function compare(imgBuffA: Buffer, imgBuffB: Buffer, comparatorPred: ComparatorPred): Promise<Comparison> {
-    const start = Date.now();
+    function withProcessor(value: PixelProcessor) {
+        pixelProcessor = value;
+        return this;
+    }
 
-    return Promise.all([
-        ImageUtil.bufferToImageData(imgBuffA),
-        ImageUtil.bufferToImageData(imgBuffB)
-    ]).then(([imageDataA, imageDataB]) => {
+    function withComparator(value: ComparatorPred) {
+        comparatorPred = value;
+        return this;
+    }
 
-        const bounds: Bounds = {
-            t: imageDataA.height / 2,
-            l: imageDataA.width / 2,
-            b: imageDataA.height / 2,
-            r: imageDataA.width / 2
-        };
+    function compare(imgBuffA: Buffer, imgBuffB: Buffer) {
+        return Comparer.compare(imgBuffA, imgBuffB, pixelProcessor, comparatorPred);
+    }
 
-        let diffCount = 0;
-
-        for (let i = 0; i < imageDataA.data.length; i += 4) {
-            const point = ImageUtil.getPoint(i, imageDataA.width);
-            const pixelA = ImageUtil.getPixelAt(imageDataA, i);
-            const pixelB = ImageUtil.getPixelAt(imageDataB, i);
-
-            if (comparatorPred(pixelA, pixelB, point)) {
-                diffCount++;
-
-                bounds.t = Math.min(point.y, bounds.t);
-                bounds.l = Math.min(point.x, bounds.l);
-                bounds.b = Math.max(point.y, bounds.b);
-                bounds.r = Math.max(point.x, bounds.r);
-
-                ImageUtil.setPixelAt(imageDataB, i, {
-                    r: 255,
-                    g: 0,
-                    b: 0
-                });
-            }
-        }
-
-        const pct = diffCount / (imageDataA.data.length / 4);
-
-        return ImageUtil.imageDataToBuffer(imageDataB)
-            .then((buffer) => ({
-                pct,
-                bounds,
-                buffer,
-                time: Date.now() - start
-            }));
-    });
+    return <BuilderAPI>{
+        withProcessor,
+        withComparator,
+        compare
+    };
 }
 
 module.exports = {
-    compare,
-    Comparator
+    create,
+    Processor,
+    Comparator,
+    ImageUtil
 };

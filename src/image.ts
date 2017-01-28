@@ -6,7 +6,7 @@ export type Pixel = {
     r: number;
     g: number;
     b: number;
-    a: number;
+    a?: number;
 };
 
 export type Point = {
@@ -49,27 +49,57 @@ function imageDataToBuffer(imageData): Promise<Buffer> {
     return Promise.resolve(Buffer.from(base64Data, 'base64'));
 }
 
-function getPoint(i, width): Point {
+function getPoint(i: number, width: number): Point {
     return {
         x: i / 4 % width,
         y: Math.floor(i / 4 / width)
     };
 }
 
-function getPixelAt(imageDataA, i): Pixel {
+function getPixelAt({ data }: ImageData, i: number): Pixel {
     return {
-        r: imageDataA.data[i],
-        g: imageDataA.data[i + 1],
-        b: imageDataA.data[i + 2],
-        a: imageDataA.data[i + 3]
+        r: data[i],
+        g: data[i + 1],
+        b: data[i + 2],
+        a: data[i + 3]
     };
 }
 
-function setPixelAt(imageData, i, pixel) {
-    imageData.data[i] = pixel.r;
-    imageData.data[i + 1] = pixel.g;
-    imageData.data[i + 2] = pixel.b;
-    imageData.data[i + 3] = pixel.a || 255;
+function setPixelAt({ data }: ImageData, i: number, pixel: Pixel) {
+    data[i] = pixel.r;
+    data[i + 1] = pixel.g;
+    data[i + 2] = pixel.b;
+    data[i + 3] = pixel.a || 255;
+}
+
+function getPixelNeighbourhood(imageData: ImageData, i: number) {
+    const w = imageData.width * 4;
+    const prevRow = i - w;
+    const nextRow = i + w;
+
+    const indexes = [
+        prevRow - 4,
+        prevRow,
+        prevRow + 4,
+        i - 4,
+        i,
+        i + 4,
+        nextRow - 4,
+        nextRow,
+        nextRow + 4
+    ];
+
+    let pixels = [];
+
+    for (let j = 0; j < indexes.length; j++) {
+        let index = indexes[j];
+
+        if (index >= 0 && index < imageData.data.length) {
+            pixels.push(getPixelAt(imageData, index))
+        }
+    }
+
+    return pixels;
 }
 
 export const ImageUtil = {
@@ -77,6 +107,6 @@ export const ImageUtil = {
     imageDataToBuffer,
     getPoint,
     getPixelAt,
-    setPixelAt
+    setPixelAt,
+    getPixelNeighbourhood
 };
-
