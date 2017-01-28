@@ -15,6 +15,8 @@ type Comparison = {
 };
 
 function compare(imgBuffA: Buffer, imgBuffB: Buffer, comparatorPred: ComparatorPred): Promise<Comparison> {
+    const start = Date.now();
+
     return Promise.all([
         ImageUtil.bufferToImageData(imgBuffA),
         ImageUtil.bufferToImageData(imgBuffB)
@@ -53,7 +55,12 @@ function compare(imgBuffA: Buffer, imgBuffB: Buffer, comparatorPred: ComparatorP
         const pct = diffCount / (imageDataA.data.length / 4);
 
         return ImageUtil.imageDataToBuffer(imageDataB)
-            .then((buffer) => ({ pct, bounds, buffer }));
+            .then((buffer) => ({
+                pct,
+                bounds,
+                buffer,
+                time: Date.now() - start
+            }));
     });
 }
 
