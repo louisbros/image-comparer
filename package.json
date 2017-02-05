@@ -1,6 +1,6 @@
 {
   "name": "image-comparer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Compare two image buffers in node",
   "main": "build/src/index.js",
   "typings": "build/src/index.d.ts",
@@ -13,8 +13,8 @@
   "author": "",
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/louisbros/image-comparer.git"
+    "type": "git",
+    "url": "https://github.com/louisbros/image-comparer.git"
   },
   "dependencies": {
     "canvas": "1.x.x",
