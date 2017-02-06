@@ -2,11 +2,18 @@ const imageType = require('image-type');
 const Canvas = require('canvas');
 const Image = Canvas.Image;
 
+export interface Image {
+    width: number;
+    height: number;
+    src: string;
+    onload: Function;
+}
+
 export type Pixel = {
     r: number;
     g: number;
     b: number;
-    a?: number;
+    a: number;
 };
 
 export type Point = {
@@ -18,25 +25,35 @@ function createDataURL(buffer): string {
     return 'data:image/' + imageType(buffer) + ';base64,' + buffer.toString('base64');
 }
 
-function bufferToImageData(buffer: Buffer): Promise<ImageData> {
-    const image = new Image();
-    const canvas = new Canvas();
+function bufferToImage(buffer: Buffer): Promise<Image> {
+    const image: Image = new Image();
 
     return new Promise((resolve) => {
         image.onload = () => {
             image.onload = null; // prevent memory leak
-
-            canvas.width = image.width;
-            canvas.height = image.height;
-            const ctx = canvas.getContext('2d');
-
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            resolve(imageData);
+            resolve(image);
         };
 
         image.src = createDataURL(buffer);
     });
+}
+
+function createContext(width: number, height: number) {
+    const canvas = new Canvas();
+    canvas.width = width;
+    canvas.height = height;
+    return canvas.getContext('2d');
+}
+
+function createImageData(width: number, height: number) {
+    const ctx = createContext(width, height);
+    return ctx.getImageData(0, 0, width, height);
+}
+
+function getImageData(image: Image, width: number, height: number) {
+    const ctx = createContext(width, height);
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+    return ctx.getImageData(0, 0, width, height);
 }
 
 function imageDataToBuffer(imageData): Promise<Buffer> {
@@ -69,7 +86,7 @@ function setPixelAt({ data }: ImageData, i: number, pixel: Pixel) {
     data[i] = pixel.r;
     data[i + 1] = pixel.g;
     data[i + 2] = pixel.b;
-    data[i + 3] = pixel.a || 255;
+    data[i + 3] = pixel.a;
 }
 
 function getPixelNeighbourhood(imageData: ImageData, i: number) {
@@ -103,7 +120,9 @@ function getPixelNeighbourhood(imageData: ImageData, i: number) {
 }
 
 export const ImageUtil = {
-    bufferToImageData,
+    bufferToImage,
+    createImageData,
+    getImageData,
     imageDataToBuffer,
     getPoint,
     getPixelAt,

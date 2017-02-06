@@ -2,6 +2,13 @@ import { ComparatorPred } from './comparator';
 import { PixelProcessor } from "./processor";
 import { ImageUtil, Point } from "./image";
 
+const MAGENTA = {
+    r: 255,
+    g: 0,
+    b: 255,
+    a: 255
+};
+
 export type Bounds = {
     t: number;
     l: number;
@@ -34,37 +41,36 @@ function updateBounds(bounds: Bounds, point: Point) {
 
 function compare(imgBuffA: Buffer, imgBuffB: Buffer, pixelProcessor: PixelProcessor, comparatorPred: ComparatorPred): Promise<Comparison> {
     const start = Date.now();
+    let diffCount = 0;
 
     return Promise.all([
-        ImageUtil.bufferToImageData(imgBuffA),
-        ImageUtil.bufferToImageData(imgBuffB)
-    ]).then(([imageDataA, imageDataB]) => {
-        const { width, height} = imageDataA;
-        const bounds = createBounds(width, height);
+        ImageUtil.bufferToImage(imgBuffA),
+        ImageUtil.bufferToImage(imgBuffB)
+    ]).then(([imageA, imageB]) => {
+        const w = Math.min(imageA.width, imageB.width);
+        const h = Math.min(imageA.height, imageB.height);
 
-        let diffCount = 0;
+        const bounds = createBounds(w, h);
 
-        for (let i = 0; i < imageDataA.data.length; i += 4) {
-            const point = ImageUtil.getPoint(i, width);
+        const imageDataA = ImageUtil.getImageData(imageA, w, h);
+        const imageDataB = ImageUtil.getImageData(imageB, w, h);
+        const imageDataC = ImageUtil.createImageData(w, h);
+
+        for (let i = 0; i < imageDataC.data.length; i += 4) {
+            const point = ImageUtil.getPoint(i, w);
             const pixelA = pixelProcessor(imageDataA, i);
             const pixelB = pixelProcessor(imageDataB, i);
 
             if (comparatorPred(pixelA, pixelB, point)) {
                 diffCount++;
                 updateBounds(bounds, point);
-                ImageUtil.setPixelAt(imageDataB, i, {
-                    r: 255,
-                    g: 0,
-                    b: 0
-                });
+                ImageUtil.setPixelAt(imageDataC, i, MAGENTA);
             }
         }
 
-        const pct = diffCount / (imageDataA.data.length / 4);
-
-        return ImageUtil.imageDataToBuffer(imageDataB)
+        return ImageUtil.imageDataToBuffer(imageDataC)
             .then((buffer) => ({
-                pct,
+                pct: diffCount / (imageDataA.data.length / 4),
                 bounds,
                 buffer,
                 time: Date.now() - start

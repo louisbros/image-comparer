@@ -9,6 +9,7 @@ function addPixels(pixelA: Pixel, pixelB: Pixel) {
         r: pixelA.r + pixelB.r,
         g: pixelA.g + pixelB.g,
         b: pixelA.b + pixelB.b,
+        a: pixelA.a + pixelB.a
     };
 }
 
@@ -24,12 +25,13 @@ function getMeanPixel(): PixelProcessor {
         return {
             r: totalPixel.r / pixelNeighbourhood.length,
             g: totalPixel.g / pixelNeighbourhood.length,
-            b: totalPixel.b / pixelNeighbourhood.length
+            b: totalPixel.b / pixelNeighbourhood.length,
+            a: totalPixel.a / pixelNeighbourhood.length
         };
     };
 }
 
 export const Processor: ProcessorMap = {
-    PIXEL: ImageUtil.getPixelAt,
+    PIXEL: () => ImageUtil.getPixelAt,
     MEAN_PIXEL: getMeanPixel
 };
