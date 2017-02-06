@@ -2,13 +2,13 @@
 
 ### Compare two image buffers in node
 
-ImageComparer.create()
-    .withProcessor(ImageComparer.Processor.MEAN_PIXEL())
-    .withComparator(ImageComparer.Comparator.RGBA_PCT(0.2))
-    .compare(imgBufA, imgBufB)
-    .then((comparison) => {
-        console.log(comparison.pct, comparison.bounds, comparison.time);
-    });
+    ImageComparer.create()
+        .withProcessor(ImageComparer.Processor.MEAN_PIXEL())
+        .withComparator(ImageComparer.Comparator.RGBA_PCT(0.2))
+        .compare(imgBufA, imgBufB)
+        .then((comparison) => {
+            console.log(comparison.pct, comparison.bounds, comparison.time);
+        });
 
 ### Processors
 
