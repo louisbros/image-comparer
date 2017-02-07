@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "canvas": "1.x.x",
-    "image-type": "3.x.x",
-    "typescript": "2.x.x"
+    "image-type": "3.x.x"
   },
   "devDependencies": {
     "@types/chai": "3.x.x",
@@ -29,6 +28,7 @@
     "chai": "3.x.x",
     "cli-glob": "0.x.x",
     "mocha": "3.x.x",
+    "typescript": "2.x.x",
     "typescript-formatter": "4.x.x"
   }
 }
