@@ -3,7 +3,7 @@ const fs = require('fs');
 const ImageComparer = require('../../src/index');
 
 describe('comparer', () => {
-    let comparer;
+    var comparer;
 
     beforeEach(() => {
         comparer = ImageComparer.create()

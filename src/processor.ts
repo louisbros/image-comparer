@@ -4,17 +4,22 @@ export type PixelProcessor = (imageData: ImageData, i: number) => Pixel;
 export type Processor = (...args: any[]) => PixelProcessor;
 export type ProcessorMap = { [key: string]: Function };
 
-function addPixels(pixelA: Pixel, pixelB: Pixel) {
-    return {
-        r: pixelA.r + pixelB.r,
-        g: pixelA.g + pixelB.g,
-        b: pixelA.b + pixelB.b,
-        a: pixelA.a + pixelB.a
-    };
-}
-
 function sumPixels(pixels: Pixel[]) {
-    return pixels.reduce(addPixels);
+    const sumPixel = {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0
+    };
+
+    for (var i = 0, l = pixels.length; i < l; i++) {
+        sumPixel.r += pixels[i].r;
+        sumPixel.g += pixels[i].g;
+        sumPixel.b += pixels[i].b;
+        sumPixel.a += pixels[i].a;
+    }
+
+    return sumPixel;
 }
 
 function getMeanPixel(): PixelProcessor {

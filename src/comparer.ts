@@ -41,7 +41,7 @@ function updateBounds(bounds: Bounds, point: Point) {
 
 function compare(imgBuffA: Buffer, imgBuffB: Buffer, pixelProcessor: PixelProcessor, comparatorPred: ComparatorPred): Promise<Comparison> {
     const start = Date.now();
-    let diffCount = 0;
+    var diffCount = 0;
 
     return Promise.all([
         ImageUtil.bufferToImage(imgBuffA),
@@ -56,7 +56,7 @@ function compare(imgBuffA: Buffer, imgBuffB: Buffer, pixelProcessor: PixelProces
         const imageDataB = ImageUtil.getImageData(imageB, w, h);
         const imageDataC = ImageUtil.createImageData(w, h);
 
-        for (let i = 0; i < imageDataC.data.length; i += 4) {
+        for (var i = 0, l = imageDataC.data.length; i < l; i += 4) {
             const point = ImageUtil.getPoint(i, w);
             const pixelA = pixelProcessor(imageDataA, i);
             const pixelB = pixelProcessor(imageDataB, i);

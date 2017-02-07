@@ -9,8 +9,8 @@ export interface BuilderAPI {
 }
 
 export function create() {
-    let pixelProcessor: PixelProcessor;
-    let comparatorPred: ComparatorPred;
+    var pixelProcessor: PixelProcessor;
+    var comparatorPred: ComparatorPred;
 
     function withProcessor(value: PixelProcessor) {
         pixelProcessor = value;

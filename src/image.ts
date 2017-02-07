@@ -22,7 +22,7 @@ export type Point = {
 };
 
 function createDataURL(buffer): string {
-    return 'data:image/' + imageType(buffer) + ';base64,' + buffer.toString('base64');
+    return `data:image/${imageType(buffer)};base64,${buffer.toString('base64')}`;
 }
 
 function bufferToImage(buffer: Buffer): Promise<Image> {
@@ -60,7 +60,7 @@ function imageDataToBuffer(imageData): Promise<Buffer> {
     const canvas = new Canvas();
     canvas.width = imageData.width;
     canvas.height = imageData.height;
-    let ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d');
     ctx.putImageData(imageData, 0, 0);
     const base64Data = canvas.toDataURL('image/png').split(',')[1];
     return Promise.resolve(Buffer.from(base64Data, 'base64'));
@@ -106,10 +106,10 @@ function getPixelNeighbourhood(imageData: ImageData, i: number) {
         nextRow + 4
     ];
 
-    let pixels = [];
+    const pixels = [];
 
-    for (let j = 0; j < indexes.length; j++) {
-        let index = indexes[j];
+    for (var j = 0, l = indexes.length; j < l; j++) {
+        const index = indexes[j];
 
         if (index >= 0 && index < imageData.data.length) {
             pixels.push(getPixelAt(imageData, index))
