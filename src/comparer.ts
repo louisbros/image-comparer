@@ -25,10 +25,10 @@ export type Comparison = {
 
 function createBounds(width: number, height: number): Bounds {
     return {
-        t: height / 2,
-        l: width / 2,
-        b: height / 2,
-        r: width / 2
+        t: height,
+        l: width,
+        b: 0,
+        r: 0
     };
 }
 
