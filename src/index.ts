@@ -1,6 +1,5 @@
-import { Comparator, ComparatorPred } from './comparator';
-import { Processor, PixelProcessor } from "./processor";
-import { ImageUtil } from "./image";
+import { ComparatorPred } from './comparator';
+import { PixelProcessor } from "./processor";
 import { Comparison, Comparer } from "./comparer";
 
 export interface BuilderAPI {
@@ -9,7 +8,7 @@ export interface BuilderAPI {
     compare: (imgBuffA: Buffer, imgBuffB: Buffer) => Promise<Comparison>
 }
 
-function create() {
+export function create() {
     let pixelProcessor: PixelProcessor;
     let comparatorPred: ComparatorPred;
 
@@ -34,9 +33,6 @@ function create() {
     };
 }
 
-module.exports = {
-    create,
-    Processor,
-    Comparator,
-    ImageUtil
-};
+export { Processor } from "./processor";
+export { Comparator } from "./comparator";
+export { ImageUtil } from "./image";
