@@ -1,14 +1,14 @@
 import { expect } from 'chai';
+import { ImageComparer, Processor, Comparator } from "../../src/index";
 const fs = require('fs');
-const ImageComparer = require('../../src/index');
 
 describe('comparer', () => {
     var comparer;
 
     beforeEach(() => {
         comparer = ImageComparer.create()
-            .withProcessor(ImageComparer.Processor.PIXEL())
-            .withComparator(ImageComparer.Comparator.RGBA_PCT(0.4));
+            .withProcessor(Processor['PIXEL']())
+            .withComparator(Comparator['RGBA_PCT'](0.4));
     });
 
     describe('bounds', () => {
@@ -55,7 +55,7 @@ describe('comparer', () => {
     describe('mean pixel', () => {
 
         it('should remove noise from the image', () => {
-            comparer = comparer.withProcessor(ImageComparer.Processor.MEAN_PIXEL());
+            comparer = comparer.withProcessor(Processor['MEAN_PIXEL']());
             const imgBufA = Buffer.from(fs.readFileSync('test/resources/mean-a.png'));
             const imgBufB = Buffer.from(fs.readFileSync('test/resources/mean-b.png'));
 

@@ -8,21 +8,21 @@ export interface BuilderAPI {
     compare: (imgBuffA: Buffer, imgBuffB: Buffer) => Promise<Comparison>
 }
 
-export function create() {
+function create() {
     var pixelProcessor: PixelProcessor;
     var comparatorPred: ComparatorPred;
 
-    function withProcessor(value: PixelProcessor) {
+    function withProcessor(value: PixelProcessor): BuilderAPI {
         pixelProcessor = value;
         return this;
     }
 
-    function withComparator(value: ComparatorPred) {
+    function withComparator(value: ComparatorPred): BuilderAPI {
         comparatorPred = value;
         return this;
     }
 
-    function compare(imgBuffA: Buffer, imgBuffB: Buffer) {
+    function compare(imgBuffA: Buffer, imgBuffB: Buffer): Promise<Comparison> {
         return Comparer.compare(imgBuffA, imgBuffB, pixelProcessor, comparatorPred);
     }
 
@@ -33,6 +33,11 @@ export function create() {
     };
 }
 
-export { Processor } from "./processor";
-export { Comparator } from "./comparator";
-export { ImageUtil } from "./image";
+export { Comparison } from './comparer'
+export { Processor } from './processor';
+export { Comparator } from './comparator';
+export { ImageUtil } from './image';
+
+export const ImageComparer = {
+    create
+};

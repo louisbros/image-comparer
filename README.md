@@ -1,13 +1,17 @@
 # image-comparer
 
+This lib depends on [node-canvas](https://github.com/Automattic/node-canvas/wiki/_pages).
+
 ## Compare two image buffers in node
 
 ```js
+import { ImageComparer } from 'image-comparer';
+
 ImageComparer.create()
     .withProcessor(ImageComparer.Processor.MEAN_PIXEL())
     .withComparator(ImageComparer.Comparator.RGBA_PCT(0.2))
     .compare(imgBufA, imgBufB)
-    .then((comparison) => {
+    .then(comparison => {
         console.log(comparison.pct, comparison.bounds, comparison.time);
     });
 ```
