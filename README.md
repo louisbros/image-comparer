@@ -5,11 +5,11 @@ This lib depends on [node-canvas](https://github.com/Automattic/node-canvas/wiki
 ## Compare two image buffers in node
 
 ```js
-import { ImageComparer } from 'image-comparer';
+import { ImageComparer, Processor, Comparator } from 'image-comparer';
 
 ImageComparer.create()
-    .withProcessor(ImageComparer.Processor.MEAN_PIXEL())
-    .withComparator(ImageComparer.Comparator.RGBA_PCT(0.2))
+    .withProcessor(Processor.MEAN_PIXEL())
+    .withComparator(Comparator.RGBA_PCT(0.2))
     .compare(imgBufA, imgBufB)
     .then(comparison => {
         console.log(comparison.pct, comparison.bounds, comparison.time);
@@ -27,6 +27,7 @@ MEAN_PIXEL // the mean of a 3*3 pixel neighbourhood
 
 ```js
 RGBA_PCT(pct: number) // true if the percentage of difference between the RGBA values of two pixels is greater than the given pct
+GREYSCALE_PCT(pct: number) // true if the percentage of difference between the greyscale value of two pixels is greater than the given pct
 ```
 
 ### Comparison
