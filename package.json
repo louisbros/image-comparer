@@ -18,8 +18,9 @@
     "url": "https://github.com/louisbros/image-comparer.git"
   },
   "dependencies": {
-    "canvas": "1.x.x",
-    "image-type": "3.x.x"
+    "image-type": "3.x.x",
+    "jpeg-js": "0.x.x",
+    "pngjs": "3.x.x"
   },
   "devDependencies": {
     "@types/chai": "3.x.x",

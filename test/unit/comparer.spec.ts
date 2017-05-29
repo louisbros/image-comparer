@@ -18,7 +18,7 @@ describe('comparer', () => {
             const imgBufB = Buffer.from(fs.readFileSync('test/resources/bounds-b.png'));
 
             return comparer.compare(imgBufA, imgBufB)
-                .then((comparison) => {
+                .then(comparison => {
                     expect(comparison.bounds).to.deep.equal({
                         t: 6,
                         l: 1,
@@ -36,19 +36,7 @@ describe('comparer', () => {
             const imgBufB = Buffer.from(fs.readFileSync('test/resources/pct-b.png'));
 
             return comparer.compare(imgBufA, imgBufB)
-                .then((comparison) => expect(comparison.pct).to.equal(0.25));
-        });
-    });
-
-    describe('buffer', () => {
-
-        it('should report the correct percent of difference', () => {
-            const imgBufA = Buffer.from(fs.readFileSync('test/resources/bounds-a.png'));
-            const imgBufB = Buffer.from(fs.readFileSync('test/resources/bounds-b.png'));
-            const imgBufC = Buffer.from(fs.readFileSync('test/resources/bounds-c.png'));
-
-            return comparer.compare(imgBufA, imgBufB)
-                .then((comparison) => expect(comparison.buffer.equals(imgBufC)).to.equal(true));
+                .then(comparison => expect(comparison.pct).to.equal(0.25));
         });
     });
 
@@ -60,7 +48,7 @@ describe('comparer', () => {
             const imgBufB = Buffer.from(fs.readFileSync('test/resources/mean-b.png'));
 
             return comparer.compare(imgBufA, imgBufB)
-                .then((comparison) => {
+                .then(comparison => {
                     expect(comparison.bounds).to.deep.equal({
                         t: 15,
                         l: 14,

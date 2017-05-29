@@ -1,7 +1,5 @@
 # image-comparer
 
-This lib depends on [node-canvas](https://github.com/Automattic/node-canvas/wiki/_pages).
-
 ## Compare two image buffers in node
 
 ```js
@@ -41,7 +39,6 @@ GREYSCALE_PCT(pct: number) // true if the percentage of difference between the g
         b: number;
         r: number;
     };
-    buffer: Buffer; // image highlighting the change
     time: number; // time taken to compare in millis
 }
 ```

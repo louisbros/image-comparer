@@ -1,13 +1,8 @@
-const imageType = require('image-type');
-const Canvas = require('canvas');
-const Image = Canvas.Image;
+import * as imageType from 'image-type';
+import * as JPG from 'jpeg-js';
+import { PNG } from 'pngjs';
 
-export interface Image {
-    width: number;
-    height: number;
-    src: string;
-    onload: Function;
-}
+export const PIXEL_LENGTH = 4;
 
 export type Pixel = {
     r: number;
@@ -21,55 +16,39 @@ export type Point = {
     y: number;
 };
 
-function createDataURL(buffer): string {
-    return `data:image/${imageType(buffer)};base64,${buffer.toString('base64')}`;
+function readJPG(imgBuff: Buffer): Promise<ImageData> {
+    return Promise.resolve(JPG.decode(imgBuff));
 }
 
-function bufferToImage(buffer: Buffer): Promise<Image> {
-    const image: Image = new Image();
-
-    return new Promise((resolve) => {
-        image.onload = () => {
-            image.onload = null; // prevent memory leak
-            resolve(image);
-        };
-
-        image.src = createDataURL(buffer);
+function readPNG(imgBuff: Buffer): Promise<ImageData> {
+    return new Promise((resolve, reject) => {
+        new PNG({ filterType: 4 }).parse(imgBuff, (error, data) => {
+            if (error != null) {
+                return reject(error);
+            }
+            resolve(data);
+        });
     });
 }
 
-function createContext(width: number, height: number) {
-    const canvas = new Canvas();
-    canvas.width = width;
-    canvas.height = height;
-    return canvas.getContext('2d');
-}
+function bufferToImageData(imgBuff: Buffer): Promise<ImageData> {
+    const type = imageType(imgBuff);
 
-function createImageData(width: number, height: number) {
-    const ctx = createContext(width, height);
-    return ctx.getImageData(0, 0, width, height);
-}
+    if (type.mime === 'image/jpeg') {
+        return readJPG(imgBuff);
+    }
 
-function getImageData(image: Image, width: number, height: number) {
-    const ctx = createContext(width, height);
-    ctx.drawImage(image, 0, 0, image.width, image.height);
-    return ctx.getImageData(0, 0, width, height);
-}
+    if (type.mime === 'image/png') {
+        return readPNG(imgBuff)
+    }
 
-function imageDataToBuffer(imageData): Promise<Buffer> {
-    const canvas = new Canvas();
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    var ctx = canvas.getContext('2d');
-    ctx.putImageData(imageData, 0, 0);
-    const base64Data = canvas.toDataURL('image/png').split(',')[1];
-    return Promise.resolve(Buffer.from(base64Data, 'base64'));
+    throw new Error(`Unexpected image type: (.${type.ext}, ${type.mime})`)
 }
 
 function getPoint(i: number, width: number): Point {
     return {
-        x: i / 4 % width,
-        y: Math.floor(i / 4 / width)
+        x: i / PIXEL_LENGTH % width,
+        y: Math.floor(i / PIXEL_LENGTH / width)
     };
 }
 
@@ -90,20 +69,20 @@ function setPixelAt({ data }: ImageData, i: number, pixel: Pixel) {
 }
 
 function getPixelNeighbourhood(imageData: ImageData, i: number) {
-    const w = imageData.width * 4;
+    const w = imageData.width * PIXEL_LENGTH;
     const prevRow = i - w;
     const nextRow = i + w;
 
     const indexes = [
-        prevRow - 4,
+        prevRow - PIXEL_LENGTH,
         prevRow,
-        prevRow + 4,
-        i - 4,
+        prevRow + PIXEL_LENGTH,
+        i - PIXEL_LENGTH,
         i,
-        i + 4,
-        nextRow - 4,
+        i + PIXEL_LENGTH,
+        nextRow - PIXEL_LENGTH,
         nextRow,
-        nextRow + 4
+        nextRow + PIXEL_LENGTH
     ];
 
     const pixels = [];
@@ -120,10 +99,7 @@ function getPixelNeighbourhood(imageData: ImageData, i: number) {
 }
 
 export const ImageUtil = {
-    bufferToImage,
-    createImageData,
-    getImageData,
-    imageDataToBuffer,
+    bufferToImageData,
     getPoint,
     getPixelAt,
     setPixelAt,

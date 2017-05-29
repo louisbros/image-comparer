@@ -1,13 +1,6 @@
 import { ComparatorPred } from './comparator';
-import { PixelProcessor } from "./processor";
-import { ImageUtil, Point } from "./image";
-
-const MAGENTA = {
-    r: 255,
-    g: 0,
-    b: 255,
-    a: 255
-};
+import { PixelProcessor } from './processor';
+import { ImageUtil, Point, PIXEL_LENGTH } from './image';
 
 export type Bounds = {
     t: number;
@@ -19,9 +12,14 @@ export type Bounds = {
 export type Comparison = {
     pct: number;
     bounds: Bounds;
-    buffer: Buffer;
     time: number;
 };
+
+function range(len, setp, func: (i: number) => any) {
+    for (var i = 0; i < len; i += setp) {
+        func(i);
+    }
+}
 
 function createBounds(width: number, height: number): Bounds {
     return {
@@ -39,43 +37,36 @@ function updateBounds(bounds: Bounds, point: Point) {
     bounds.r = Math.max(point.x, bounds.r);
 }
 
-function compare(imgBuffA: Buffer, imgBuffB: Buffer, pixelProcessor: PixelProcessor, comparatorPred: ComparatorPred): Promise<Comparison> {
+function compareImageData(imageDataA: ImageData, imageDataB: ImageData, pixelProcessor: PixelProcessor, comparatorPred: ComparatorPred) {
     const start = Date.now();
+    const w = Math.min(imageDataA.width, imageDataB.width);
+    const h = Math.min(imageDataA.height, imageDataB.height);
+
     var diffCount = 0;
+    var bounds = createBounds(w, h);
+    range(w * h * PIXEL_LENGTH, PIXEL_LENGTH, i => {
+        const point = ImageUtil.getPoint(i, w);
+        const pixelA = pixelProcessor(imageDataA, i);
+        const pixelB = pixelProcessor(imageDataB, i);
 
-    return Promise.all([
-        ImageUtil.bufferToImage(imgBuffA),
-        ImageUtil.bufferToImage(imgBuffB)
-    ]).then(([imageA, imageB]) => {
-        const w = Math.min(imageA.width, imageB.width);
-        const h = Math.min(imageA.height, imageB.height);
-
-        const bounds = createBounds(w, h);
-
-        const imageDataA = ImageUtil.getImageData(imageA, w, h);
-        const imageDataB = ImageUtil.getImageData(imageB, w, h);
-        const imageDataC = ImageUtil.createImageData(w, h);
-
-        for (var i = 0, l = imageDataC.data.length; i < l; i += 4) {
-            const point = ImageUtil.getPoint(i, w);
-            const pixelA = pixelProcessor(imageDataA, i);
-            const pixelB = pixelProcessor(imageDataB, i);
-
-            if (comparatorPred(pixelA, pixelB, point)) {
-                diffCount++;
-                updateBounds(bounds, point);
-                ImageUtil.setPixelAt(imageDataC, i, MAGENTA);
-            }
+        if (comparatorPred(pixelA, pixelB, point)) {
+            diffCount++;
+            updateBounds(bounds, point);
         }
-
-        return ImageUtil.imageDataToBuffer(imageDataC)
-            .then((buffer) => ({
-                pct: diffCount / (imageDataA.data.length / 4),
-                bounds,
-                buffer,
-                time: Date.now() - start
-            }));
     });
+
+    return Promise.resolve({
+        pct: diffCount / (imageDataA.data.length / 4),
+        bounds,
+        time: Date.now() - start
+    });
+}
+
+function compare(imgBuffA: Buffer, imgBuffB: Buffer, pixelProcessor: PixelProcessor, comparatorPred: ComparatorPred): Promise<Comparison> {
+    return Promise.all([
+        ImageUtil.bufferToImageData(imgBuffA),
+        ImageUtil.bufferToImageData(imgBuffB)
+    ]).then(([imageDataA, imageDataB]) => compareImageData(imageDataA, imageDataB, pixelProcessor, comparatorPred));
 }
 
 export const Comparer = {
