@@ -31,5 +31,16 @@
     "mocha": "3.x.x",
     "typescript": "2.x.x",
     "typescript-formatter": "4.x.x"
-  }
+  },
+  "keywords": [
+    "image comparer",
+    "image compare",
+    "image diff",
+    "image comparison",
+    "image",
+    "diff",
+    "comparison",
+    "difference",
+    "pixel"
+  ]
 }
