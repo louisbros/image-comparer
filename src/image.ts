@@ -2,6 +2,7 @@ import * as imageType from 'image-type';
 import * as JPG from 'jpeg-js';
 import { PNG } from 'pngjs';
 
+export const NEIGHBOURHOOD_SIZE = 9;
 export const PIXEL_LENGTH = 4;
 
 export type Pixel = {
@@ -68,34 +69,50 @@ function setPixelAt({ data }: ImageData, i: number, pixel: Pixel) {
     data[i + 3] = pixel.a;
 }
 
-function getPixelNeighbourhood(imageData: ImageData, i: number) {
+function getNeighbourhoodPixels(imageData: ImageData, i: number) {
+    const point = ImageUtil.getPoint(i, imageData.width);
+    const tEdge = point.y === 0;
+    const lEdge = point.x === 0;
+    const bEdge = point.y === imageData.height - 1;
+    const rEdge = point.x === imageData.width - 1;
     const w = imageData.width * PIXEL_LENGTH;
     const prevRow = i - w;
     const nextRow = i + w;
+    const neighbourhood: Pixel[] = [];
 
-    const indexes = [
-        prevRow - PIXEL_LENGTH,
-        prevRow,
-        prevRow + PIXEL_LENGTH,
-        i - PIXEL_LENGTH,
-        i,
-        i + PIXEL_LENGTH,
-        nextRow - PIXEL_LENGTH,
-        nextRow,
-        nextRow + PIXEL_LENGTH
-    ];
+    if (!tEdge && !lEdge) neighbourhood.push(getPixelAt(imageData, prevRow - PIXEL_LENGTH));
+    if (!tEdge) neighbourhood.push(getPixelAt(imageData, prevRow));
+    if (!tEdge && !rEdge) neighbourhood.push(getPixelAt(imageData, prevRow + PIXEL_LENGTH));
+    if (!lEdge) neighbourhood.push(getPixelAt(imageData, i - PIXEL_LENGTH));
+    neighbourhood.push(getPixelAt(imageData, i));
+    if (!rEdge) neighbourhood.push(getPixelAt(imageData, i + PIXEL_LENGTH));
+    if (!bEdge && !lEdge) neighbourhood.push(getPixelAt(imageData, nextRow - PIXEL_LENGTH));
+    if (!bEdge) neighbourhood.push(getPixelAt(imageData, nextRow));
+    if (!bEdge && !rEdge) neighbourhood.push(getPixelAt(imageData, nextRow + PIXEL_LENGTH));
 
-    const pixels = [];
+    return neighbourhood;
+}
 
-    for (var j = 0, l = indexes.length; j < l; j++) {
-        const index = indexes[j];
+function getMeanPixel(imageData: ImageData, i: number): Pixel {
+    const neighbourhood = getNeighbourhoodPixels(imageData, i);
+    const meanPixel = { r: 0, g: 0, b: 0, a: 0 };
+    const length = neighbourhood.length;
+    var pixel;
 
-        if (index >= 0 && index < imageData.data.length) {
-            pixels.push(getPixelAt(imageData, index))
-        }
+    for (var i = 0; i < length; i++) {
+        pixel = neighbourhood[i];
+        meanPixel.r += pixel.r;
+        meanPixel.g += pixel.g;
+        meanPixel.b += pixel.b;
+        meanPixel.a += pixel.a;
     }
 
-    return pixels;
+    return {
+        r: meanPixel.r / length,
+        g: meanPixel.g / length,
+        b: meanPixel.b / length,
+        a: meanPixel.a / length
+    };
 }
 
 export const ImageUtil = {
@@ -103,5 +120,5 @@ export const ImageUtil = {
     getPoint,
     getPixelAt,
     setPixelAt,
-    getPixelNeighbourhood
+    getMeanPixel
 };
